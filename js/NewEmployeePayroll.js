@@ -51,14 +51,17 @@ class EmployeePayrollData {
     }
 
     // toString() method
-    toString() {
+    toString() 
+    {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
         const empDate = !this.startDate ? "undefined" : this.startDate.toLocaleDateString("en-US", options);
+
         return "id=" + this.id + ", name=" + this.name + ", gender=" + this.gender +
             ", profilePic=" + this.profilePic + ", department=" + this.department +
             ", salary=" + this.salary + ", startDate=" + empDate + ", note=" + this.note;
     }
 }
+
 /* UC2:- Ability to set Event Listeners when Document is loaded so as to.
          - Set Event Listener on Salary Range to display appropriate value.
          - Validation of Name and Date
@@ -198,10 +201,74 @@ const remove = (node) => {
     let empPayrollData = empPayrollList.find(empData => empData._id == node.id);
     if (!empPayrollData) return;
     const index = empPayrollList
-                 .map(empData => empData._id)
-                .indexOf(empPayrollData._id);
-    empPayrollList.splice (index, 1);
-    localStorage.setItem("EmployeePayrollList", JSON.stringify (empPayrollList));
+        .map(empData => empData._id)
+        .indexOf(empPayrollData._id);
+    empPayrollList.splice(index, 1);
+    localStorage.setItem("EmployeePayrollList", JSON.stringify(empPayrollList));
     document.querySelector(".emp-count").textContent = empPayrollList.length;
     createInnerHtml();
+}
+
+//Day48-UC2
+let isUpdate = false;
+let employeePayrollObj = {};
+
+windows.addEventListener('DOMContentLoaded', (event) => {
+    const name = document.querySelector('#name');
+    const textError = document.querySelector('.text-error');
+    name.addEventListener('input', function () {
+        if (name.value.length == 0) {
+            textError.textContent = "";
+            return;
+        }
+        try {
+            (new EmployeePayrollData()).name = name.value;
+            textError.textContent = "";
+        } catch (e) {
+            textError.textContent = e;
+        }
+    })
+
+
+    const salary = document.querySelector('#salary');
+    const output = document.querySelector('.salary-output');
+    output.textContent = salary.value;
+    salary.addEventListener('input', function () {
+        output.textContent = salary.value;
+        checkForUpdate();
+    });
+});
+
+const checkForUpdate = () => {
+    const employeePayrollJson = localStorage.getItem('editEmp');
+    isUpdate = employeePayrollJson ? true : false;
+    if (!isUpdate) return;
+    employeePayrollObj = JSON.parse(employeePayrollJson);
+    setForm();
+}
+
+const setForm = () => {
+    setValue('#name', employeePayrollObj._name);
+    setSelectedValues('[name=profile]', employeePayrollObj._profilePic);
+    setSelectedValues('[name=gender]', employeePayrollObj._gender);
+    setSelectedValues('[name-department]', employeePayrollObj._department);
+    setValue('#salary', employeePayrollObj._note);
+    setValue('#notes', employeePayrollObj._note);
+    let date = stringifyDate(employeePayrollObj._startDate).split(" ");
+    setValue('#day', date[0]);
+    setValue('#month', date[1]);
+    setValue('#year', date[2]);
+}
+
+const setSelectedValues = (propertyValue, value) => {
+    let allItems = document.querySelectorAll(propertyValue);
+    allItems.forEach(item => {
+        if (Array.isArray(value)) {
+            if (value.includes(item.value)) {
+                item.checked = true;
+            }
+        }
+        else if (item.value === value)
+            item.checked = true;
+    });
 }

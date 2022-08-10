@@ -134,3 +134,13 @@ const getDeptHtml = (deptList) => {
     }
     return deptHtml;
   }
+
+   //Day48-UC2
+let empPayrollList;
+window.addEventListener('DOMContentLoaded', (event) => {
+    empPayrollList = getEmployeePayrollDataFromStorage();
+    document.querySelector(".emp-count").textContent = empPayrollList.length;
+    createInnerHTML();
+    localStorage.removeItem('editEmp');
+});
+  
